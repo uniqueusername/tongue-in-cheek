@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://cir8t4djuwwyn"]
+
+[node name="slider" type="ColorRect"]
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)

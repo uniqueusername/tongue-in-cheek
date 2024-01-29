@@ -1,0 +1,600 @@
+[gd_scene load_steps=23 format=3 uid="uid://evb11miertyd"]
+
+[ext_resource type="PackedScene" uid="uid://cir8t4djuwwyn" path="res://cans/slider.tscn" id="1_i82vi"]
+[ext_resource type="PackedScene" uid="uid://b0mblu6epu40i" path="res://assets/skull/human_skull_low_res.glb" id="2_2cmuw"]
+[ext_resource type="AudioStream" uid="uid://57kohgsrcxyr" path="res://assets/tongue_in_cheek.mp3" id="2_ks0as"]
+[ext_resource type="AudioStream" uid="uid://kmt4uvn73i30" path="res://assets/C64 Stick 01.wav" id="3_4qtvf"]
+
+[sub_resource type="GDScript" id="GDScript_x0oe6"]
+script/source = "extends CenterContainer
+
+var strobing
+
+func _ready():
+	strobing = false
+
+func _physics_process(delta):
+	if strobing:
+		visible = !visible
+
+func _on_song_beat(beat: int, bar_in_beat: int):
+	if beat == 9: strobing = true
+	if beat == 17:
+		strobing = false
+		visible = false
+"
+
+[sub_resource type="GDScript" id="GDScript_yxdvi"]
+script/source = "extends HBoxContainer
+
+func _ready():
+	visible = false
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat == 9: visible = true
+	if beat == 17: visible = false
+"
+
+[sub_resource type="GDScript" id="GDScript_lne1l"]
+script/source = "extends Node
+
+@onready var children = get_children()
+@onready var curr_child = 0
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat >= 9 and curr_child < 8:
+		children[curr_child].set_assigned_animation(\"slide_box\")
+		children[curr_child].play()
+		curr_child += 1
+"
+
+[sub_resource type="Animation" id="Animation_wmmro"]
+resource_name = "slide_box"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("box:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(0.2, 1),
+"update": 0,
+"values": [Vector2(0, -500), Vector2(0, 1080)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("box:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(218, 500), Vector2(218, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_ya8mu"]
+resource_name = "appear"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_860wp"]
+_data = {
+"appear": SubResource("Animation_ya8mu"),
+"slide_box": SubResource("Animation_wmmro")
+}
+
+[sub_resource type="GDScript" id="GDScript_ex7sm"]
+script/source = "extends HBoxContainer
+
+func _ready():
+	visible = true
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat == 1:
+		$slider.modulate = Color.WHITE
+		$slider8.modulate = Color.WHITE
+		
+	if beat == 3:
+		$slider2.modulate = Color.WHITE
+		$slider7.modulate = Color.WHITE
+		
+	if beat == 5:
+		$slider3.modulate = Color.WHITE
+		$slider6.modulate = Color.WHITE
+		
+	if beat == 7:
+		$slider4.modulate = Color.WHITE
+		$slider5.modulate = Color.WHITE
+
+	if beat == 9: visible = false
+"
+
+[sub_resource type="Animation" id="Animation_6jmxd"]
+resource_name = "move_skull"
+length = 7.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("SubViewportContainer/SubViewport/build:rotation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 6.2),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(0, 1.22871, 0), Vector3(0, -0.443314, 0)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("SubViewportContainer/SubViewport/build:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 6.2),
+"transitions": PackedFloat32Array(0.203063, 1),
+"update": 0,
+"values": [Vector3(-0.106, -0.3, -0.235), Vector3(-0.105796, -0.0381402, -0.23479)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_che8i"]
+_data = {
+"move_skull": SubResource("Animation_6jmxd")
+}
+
+[sub_resource type="GDScript" id="GDScript_x1jek"]
+script/source = "extends AnimationPlayer
+
+func _ready():
+	set_assigned_animation(\"move_skull\")
+	play()
+"
+
+[sub_resource type="GDScript" id="GDScript_ppwq8"]
+script/source = "extends SubViewportContainer
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat == 17: visible = false
+"
+
+[sub_resource type="SystemFont" id="SystemFont_76luy"]
+font_names = PackedStringArray("cascadia code")
+
+[sub_resource type="GDScript" id="GDScript_0og65"]
+script/source = "extends Label
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat == 9: visible = false
+"
+
+[sub_resource type="Animation" id="Animation_y0ulr"]
+resource_name = "show_text"
+length = 3.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Label:visible_ratio")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.6, 2.2, 3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [0.0, 0.729, 0.729, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_6xono"]
+_data = {
+"show_text": SubResource("Animation_y0ulr")
+}
+
+[sub_resource type="GDScript" id="GDScript_3mr48"]
+script/source = "extends AnimationPlayer
+
+func _ready():
+	set_assigned_animation(\"show_text\")
+	play()
+"
+
+[sub_resource type="GDScript" id="GDScript_ybkpc"]
+script/source = "extends AudioStreamPlayer
+
+@export var start_beat: int = 0 # the beat to start playing the audio stream from
+@export var start_offset: int = 1 # the first beat of the metronome
+
+var beats_per_second: float
+var seconds_per_beat: float
+var beat_in_bar: int
+var last_beat: int
+
+var stream_started_at
+var time
+
+signal beat
+
+func _ready():
+	beats_per_second = stream.bpm / 60.0
+	seconds_per_beat = 1.0 / beats_per_second
+	beat_in_bar = start_offset
+	
+	play_from_beat(start_beat)
+
+func _process(delta):
+	time = get_playback_position() + AudioServer.get_time_since_last_mix() - stream_started_at
+	time -= AudioServer.get_output_latency()
+
+	next_beat()
+	last_beat = int(floor(time / seconds_per_beat))
+
+func play_from_beat(beat: int):
+	stream_started_at = seconds_per_beat * beat
+	play(stream_started_at)
+
+func next_beat():
+	var curr_beat = int(floor(time / seconds_per_beat))
+	if curr_beat != last_beat:
+		beat_in_bar += 1
+		if beat_in_bar == 5: beat_in_bar = 1
+		beat.emit(curr_beat, beat_in_bar)
+"
+
+[sub_resource type="GDScript" id="GDScript_gearu"]
+script/source = "extends AudioStreamPlayer
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	pass
+#	if beat_in_bar == 1: play()
+"
+
+[node name="lines" type="Node2D"]
+
+[node name="lines" type="Node2D" parent="."]
+
+[node name="CenterContainer" type="CenterContainer" parent="lines"]
+visible = false
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_x0oe6")
+
+[node name="ColorRect" type="ColorRect" parent="lines/CenterContainer"]
+z_index = 1
+custom_minimum_size = Vector2(1920, 1080)
+layout_mode = 2
+color = Color(0, 0, 0, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="lines"]
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+script = SubResource("GDScript_yxdvi")
+
+[node name="animators" type="Node" parent="lines/HBoxContainer"]
+script = SubResource("GDScript_lne1l")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer2" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider2")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer3" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider3")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer4" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider4")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer5" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider5")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer6" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider6")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer7" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider7")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer8" type="AnimationPlayer" parent="lines/HBoxContainer/animators"]
+root_node = NodePath("../../slider8")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="slider" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider2" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider2"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider3" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider3"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider4" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider4"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider5" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider5"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider6" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider6"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider7" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider7"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider8" parent="lines/HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines/HBoxContainer/slider8"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="lines2" type="Node2D" parent="."]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="lines2"]
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+script = SubResource("GDScript_ex7sm")
+
+[node name="slider" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider2" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider2"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider3" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider3"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider4" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider4"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider5" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider5"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider6" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider6"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider7" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider7"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider8" parent="lines2/HBoxContainer" instance=ExtResource("1_i82vi")]
+modulate = Color(0, 0, 0, 1)
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="lines2/HBoxContainer/slider8"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 213.0
+offset_bottom = 1075.0
+color = Color(0, 0, 0, 1)
+
+[node name="skull" type="Node3D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="skull"]
+libraries = {
+"": SubResource("AnimationLibrary_che8i")
+}
+script = SubResource("GDScript_x1jek")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="skull"]
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+script = SubResource("GDScript_ppwq8")
+
+[node name="SubViewport" type="SubViewport" parent="skull/SubViewportContainer"]
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1920, 1080)
+render_target_update_mode = 4
+
+[node name="build" parent="skull/SubViewportContainer/SubViewport" instance=ExtResource("2_2cmuw")]
+transform = Transform3D(0.335452, 0, 0.942057, 0, 1, 0, -0.942057, 0, 0.335452, -0.106, -0.3, -0.235)
+
+[node name="Camera3D" type="Camera3D" parent="skull/SubViewportContainer/SubViewport"]
+
+[node name="OmniLight3D" type="DirectionalLight3D" parent="skull/SubViewportContainer/SubViewport"]
+transform = Transform3D(-0.892582, -0.244518, -0.378826, 0.00123063, -0.8415, 0.540256, -0.450884, 0.481757, 0.751408, -0.214654, 0.534579, 0.185037)
+light_color = Color(0.141176, 0, 0.937255, 1)
+light_energy = 2.35
+
+[node name="text" type="Node2D" parent="."]
+
+[node name="Label" type="Label" parent="text"]
+offset_left = 373.0
+offset_top = 112.0
+offset_right = 1781.0
+offset_bottom = 829.0
+theme_override_fonts/font = SubResource("SystemFont_76luy")
+theme_override_font_sizes/font_size = 86
+text = "you used to pull 
+your tongue to
+your cheek when
+you got mad"
+horizontal_alignment = 2
+visible_characters = 0
+visible_ratio = 0.0
+script = SubResource("GDScript_0og65")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="text"]
+libraries = {
+"": SubResource("AnimationLibrary_6xono")
+}
+script = SubResource("GDScript_3mr48")
+
+[node name="song" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_ks0as")
+script = SubResource("GDScript_ybkpc")
+start_beat = 15
+start_offset = 0
+
+[node name="metronome" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_4qtvf")
+volume_db = 12.0
+script = SubResource("GDScript_gearu")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="beat" from="song" to="lines/CenterContainer" method="_on_song_beat"]
+[connection signal="beat" from="song" to="lines/HBoxContainer" method="_on_song_beat"]
+[connection signal="beat" from="song" to="lines/HBoxContainer/animators" method="_on_song_beat"]
+[connection signal="beat" from="song" to="skull/SubViewportContainer" method="_on_song_beat"]
+[connection signal="beat" from="song" to="metronome" method="_on_song_beat"]
+[connection signal="beat" from="song" to="text/Label" method="_on_song_beat"]
+[connection signal="beat" from="song" to="lines2/HBoxContainer" method="_on_song_beat"]

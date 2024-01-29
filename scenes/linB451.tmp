@@ -1,0 +1,134 @@
+[gd_scene load_steps=6 format=3 uid="uid://evb11miertyd"]
+
+[ext_resource type="PackedScene" uid="uid://cir8t4djuwwyn" path="res://cans/slider.tscn" id="1_i82vi"]
+[ext_resource type="AudioStream" uid="uid://57kohgsrcxyr" path="res://assets/tongue_in_cheek.mp3" id="2_ks0as"]
+
+[sub_resource type="Animation" id="Animation_wmmro"]
+resource_name = "slide_box"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("box:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(0.1, 1),
+"update": 0,
+"values": [Vector2(0, -500), Vector2(0, 1080)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("box:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(0.25, 1),
+"update": 0,
+"values": [Vector2(218, 500), Vector2(218, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_860wp"]
+_data = {
+"slide_box": SubResource("Animation_wmmro")
+}
+
+[sub_resource type="GDScript" id="GDScript_ybkpc"]
+script/source = "extends AudioStreamPlayer
+
+@export var start_beat: int = 0
+
+var beats_per_second: float
+var seconds_per_beat: float
+
+var time_begin
+var time_delay
+
+func _ready():
+	beats_per_second = stream.bpm / 60.0
+	seconds_per_beat = 1.0 / beats_per_second
+	
+	time_begin = Time.get_ticks_usec()
+	time_delay = AudioServer.get_time_to_next_mix() + AudioServer.get_output_latency()
+	play_from_beat(start_beat)
+
+func _process(delta):
+	var time = (Time.get_ticks_usec() - time_begin) / 1000000.0
+	time -= time_delay
+	time = max(0, time)
+	
+	print(int(floor(abs(time / seconds_per_beat) * 100)) % 10)
+	#if (int(floor(abs(time / seconds_per_beat) * 100)) % 10) < 1: print(\"beat\")
+
+func play_from_beat(beat: int):
+	play(seconds_per_beat * beat)
+"
+
+[node name="lines" type="Node2D"]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="slider" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/slider"]
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="ColorRect2" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="ColorRect3" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="ColorRect4" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="ColorRect5" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="ColorRect6" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="ColorRect7" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="ColorRect8" type="ColorRect" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+color = Color(1, 0.14902, 0, 1)
+
+[node name="AudioStreamPlayer2D" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_ks0as")
+script = SubResource("GDScript_ybkpc")
+start_beat = 15

@@ -1,0 +1,248 @@
+[gd_scene load_steps=9 format=3 uid="uid://evb11miertyd"]
+
+[ext_resource type="PackedScene" uid="uid://cir8t4djuwwyn" path="res://cans/slider.tscn" id="1_i82vi"]
+[ext_resource type="AudioStream" uid="uid://57kohgsrcxyr" path="res://assets/tongue_in_cheek.mp3" id="2_ks0as"]
+[ext_resource type="AudioStream" uid="uid://kmt4uvn73i30" path="res://assets/C64 Stick 01.wav" id="3_4qtvf"]
+
+[sub_resource type="GDScript" id="GDScript_lne1l"]
+script/source = "extends Node
+
+@onready var children = get_children()
+@onready var curr_child = 0
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat >= 24:
+		children[curr_child].play()
+		curr_child += 1
+"
+
+[sub_resource type="Animation" id="Animation_wmmro"]
+resource_name = "slide_box"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("box:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(0.1, 1),
+"update": 0,
+"values": [Vector2(0, -500), Vector2(0, 1080)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("box:size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(0.25, 1),
+"update": 0,
+"values": [Vector2(218, 500), Vector2(218, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_860wp"]
+_data = {
+"slide_box": SubResource("Animation_wmmro")
+}
+
+[sub_resource type="GDScript" id="GDScript_ybkpc"]
+script/source = "extends AudioStreamPlayer
+
+@export var start_beat: int = 0 # the beat to start playing the audio stream from
+@export var start_offset: int = 1 # the first beat of the metronome
+
+var beats_per_second: float
+var seconds_per_beat: float
+var beat_in_bar: int
+var last_beat: int
+
+var stream_started_at
+var time
+
+signal beat
+
+func _ready():
+	beats_per_second = stream.bpm / 60.0
+	seconds_per_beat = 1.0 / beats_per_second
+	beat_in_bar = start_offset
+	
+	play_from_beat(start_beat)
+
+func _process(delta):
+	time = get_playback_position() + AudioServer.get_time_since_last_mix() - stream_started_at
+	time -= AudioServer.get_output_latency()
+
+	next_beat()
+	last_beat = int(floor(time / seconds_per_beat))
+
+func play_from_beat(beat: int):
+	stream_started_at = seconds_per_beat * beat
+	play(stream_started_at)
+
+func next_beat():
+	var curr_beat = int(floor(time / seconds_per_beat))
+	if curr_beat != last_beat:
+		beat_in_bar += 1
+		if beat_in_bar == 5: beat_in_bar = 1
+		beat.emit(curr_beat, beat_in_bar)
+"
+
+[sub_resource type="GDScript" id="GDScript_gearu"]
+script/source = "extends AudioStreamPlayer
+
+func _on_song_beat(beat: int, beat_in_bar: int):
+	if beat_in_bar == 1: play()
+"
+
+[node name="lines" type="Node2D"]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(1920, 1080)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 1920.0
+offset_bottom = 1080.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="animators" type="Node" parent="HBoxContainer"]
+script = SubResource("GDScript_lne1l")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer2" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider2")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer3" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider3")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer4" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider4")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer5" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider5")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer6" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider6")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer7" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider7")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="AnimationPlayer8" type="AnimationPlayer" parent="HBoxContainer/animators"]
+root_node = NodePath("../../slider8")
+libraries = {
+"": SubResource("AnimationLibrary_860wp")
+}
+
+[node name="slider" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider2" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider2"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider3" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider3"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider4" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider4"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider5" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider5"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider6" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider6"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider7" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider7"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="slider8" parent="HBoxContainer" instance=ExtResource("1_i82vi")]
+layout_mode = 2
+
+[node name="box" type="ColorRect" parent="HBoxContainer/slider8"]
+layout_mode = 0
+offset_top = -500.0
+offset_right = 218.0
+color = Color(0, 0, 0, 1)
+
+[node name="song" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_ks0as")
+script = SubResource("GDScript_ybkpc")
+start_beat = 15
+start_offset = 0
+
+[node name="metronome" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_4qtvf")
+volume_db = 12.0
+script = SubResource("GDScript_gearu")
+
+[connection signal="beat" from="song" to="metronome" method="_on_song_beat"]
+[connection signal="beat" from="song" to="HBoxContainer/animators" method="_on_song_beat"]
